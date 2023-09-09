@@ -8,4 +8,5 @@ import java.util.List;
 public interface ReplyService {
     void replyToTweet(int tweetId, Reply reply);
     void deleteReply(int replyId);
+    public Reply findReplyById(int replyId);
 }

@@ -24,9 +24,9 @@ public class RetweetServiceImpl implements RetweetService {
     private UserRepository userRepository;
 
     @Override
-    public void retweet(int tweetId, User user) {
+    public void retweet(int tweetId, int userId) {
         Tweet tweet = tweetRepository.findById(tweetId).orElse(null);
-        User retweetingUser = userRepository.findById(user.getId()).orElse(null);
+        User retweetingUser = userRepository.findById(userId).orElse(null);
         if (tweet != null && retweetingUser != null) {
             Retweet retweet = new Retweet();
             retweet.setTweet(tweet);

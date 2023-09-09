@@ -87,7 +87,7 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.POST, "/tweet/**", "/student/**")  .hasAnyRole("USER", "ADMIN");
                     auth.requestMatchers(HttpMethod.PUT, "/tweet/**")  .hasAnyRole("USER", "ADMIN");
                     auth.requestMatchers(HttpMethod.DELETE, "/tweet/**")  .hasAnyRole("USER", "ADMIN");
-                    auth.anyRequest().authenticated();
+//                    auth.anyRequest().authenticated();
                 })
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
                 .build();

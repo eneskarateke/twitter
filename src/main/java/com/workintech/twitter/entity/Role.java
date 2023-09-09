@@ -8,7 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "role", schema = "secure_app")
+@Table(name = "role", schema = "twitter")
 public class Role implements GrantedAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
