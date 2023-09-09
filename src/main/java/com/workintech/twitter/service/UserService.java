@@ -2,8 +2,10 @@ package com.workintech.twitter.service;
 
 import com.workintech.twitter.entity.Like;
 import com.workintech.twitter.entity.User;
+import com.workintech.twitter.exceptions.TwitterException;
 import com.workintech.twitter.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -34,7 +36,7 @@ public class UserService implements UserDetailsService {
         if (foundUser.isPresent()) {
             return foundUser.get();
         }
-        //TODO
-        return null;
+        throw new TwitterException("User does not exist with given id" + userId, HttpStatus.NOT_FOUND);
+
     }
 }

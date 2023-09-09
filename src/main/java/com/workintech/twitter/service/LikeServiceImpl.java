@@ -4,10 +4,12 @@ import com.workintech.twitter.entity.Like;
 import com.workintech.twitter.entity.Reply;
 import com.workintech.twitter.entity.Tweet;
 import com.workintech.twitter.entity.User;
+import com.workintech.twitter.exceptions.TwitterException;
 import com.workintech.twitter.repository.LikeRepository;
 import com.workintech.twitter.repository.TweetRepository;
 import com.workintech.twitter.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,7 +22,7 @@ public class LikeServiceImpl implements LikeService {
     private TweetRepository tweetRepository;
     private UserRepository userRepository;
     @Autowired
-    public LikeServiceImpl(LikeRepository likeRepository, TweetRepository tweetRepository) {
+    public LikeServiceImpl(LikeRepository likeRepository, TweetRepository tweetRepository, UserRepository userRepository) {
         this.likeRepository = likeRepository;
         this.tweetRepository = tweetRepository;
         this.userRepository = userRepository;
@@ -33,20 +35,20 @@ public class LikeServiceImpl implements LikeService {
         if (foundLike.isPresent()) {
             return foundLike.get();
         }
-        //TODO
-        return null;
+        throw new TwitterException("Like with given id does not exits: " + likeId , HttpStatus.NOT_FOUND);
+
     }
 
     @Override
     public void likeTweet(int tweetId, int userId) {
-        Tweet tweet = tweetRepository.findById(tweetId).orElse(null);
-        User user = userRepository.findById(userId).orElse(null);
+        Optional<Tweet> tweet = tweetRepository.findById(tweetId);
+        Optional<User> user = userRepository.findById(userId);
 
-        if (tweet != null) {
+        if (tweet.isPresent()) {
             Like like = new Like();
-            like.setTweet(tweet);
-            if(user!=null) {
-                like.setUser(user);
+            like.setTweet(tweet.get());
+            if(user.isPresent()) {
+                like.setUser(user.get());
                 likeRepository.save(like);
 
             }

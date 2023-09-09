@@ -3,9 +3,11 @@ package com.workintech.twitter.service;
 import com.workintech.twitter.dto.LoginResponse;
 import com.workintech.twitter.entity.Role;
 import com.workintech.twitter.entity.User;
+import com.workintech.twitter.exceptions.TwitterException;
 import com.workintech.twitter.repository.RoleRepository;
 import com.workintech.twitter.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,8 +40,7 @@ public class AuthenticationService {
 
         Optional<User> foundUser = userRepository.findUserByEmail(email);
         if(foundUser.isPresent()){
-            //TODO throw Exception
-            return null;
+            throw new TwitterException("User is not valid", HttpStatus.BAD_REQUEST);
         }
 
         String encodedPassword = passwordEncoder.encode(password);
@@ -61,8 +62,6 @@ public class AuthenticationService {
             String token = tokenService.generateJwtToken(auth);
             return new LoginResponse(token);
         } catch (Exception ex){
-            //TODO Exception
-            //throw
             ex.printStackTrace();
             return new LoginResponse("");
         }

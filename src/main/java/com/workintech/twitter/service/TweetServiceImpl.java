@@ -1,8 +1,10 @@
 package com.workintech.twitter.service;
 
 import com.workintech.twitter.entity.Tweet;
+import com.workintech.twitter.exceptions.TwitterException;
 import com.workintech.twitter.repository.TweetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,8 +30,8 @@ public class TweetServiceImpl implements TweetService{
     if(tweet.isPresent()) {
     return tweet.get();
     }
-        //TODO EXCEPTION
-    return null;
+
+        throw new TwitterException("Tweet with given id is not exist: " + id, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -39,13 +41,11 @@ public class TweetServiceImpl implements TweetService{
 
     @Override
     public Tweet update(int tweetId, Tweet tweet) {
-        Tweet existingTweet = tweetRepository.findById(tweetId).orElse(null);
-        if (existingTweet != null) {
+        Tweet existingTweet = findById(tweetId);
+
             existingTweet.setPost(tweet.getPost());
             existingTweet.setId(tweetId);
             return tweetRepository.save(existingTweet);
-        }
-        return null; // Tweet not found
     }
 
     @Override
@@ -55,7 +55,7 @@ public class TweetServiceImpl implements TweetService{
             tweetRepository.delete(tweet.get());
             return tweet.get();
         }
-        //TODO throw Exception
-        return null;
+        throw new TwitterException("Tweet with given id does not exits: " + id , HttpStatus.NOT_FOUND);
+
     }
 }

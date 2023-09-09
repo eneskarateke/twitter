@@ -36,6 +36,5 @@ public class RetweetController {
                 retweetService.retweet(foundTweet.getId(), foundUser.getId());
             }
         }
-        //TODO throw exception
     }
 }
