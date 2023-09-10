@@ -1,5 +1,6 @@
 package com.workintech.twitter.controller;
 
+import com.workintech.twitter.dto.TweetRequest;
 import com.workintech.twitter.entity.Tweet;
 import com.workintech.twitter.entity.User;
 import com.workintech.twitter.exceptions.TwitterException;
@@ -56,14 +57,14 @@ public class TweetController {
         return ResponseEntity.status(HttpStatus.OK).body(tweetResponse);
     }
 
-    @PostMapping("/{userId}")
-    public ResponseEntity<TweetResponse> createTweet(@Validated @RequestBody Tweet tweet, @PathVariable int userId) {
-        User foundUser = userService.findUserById(userId);
+    @PostMapping("/")
+    public ResponseEntity<TweetResponse> createTweet(@Validated @RequestBody TweetRequest tweetRequest) {
+        User foundUser = userService.findUserById(tweetRequest.getUserId());
 
         // Create a new tweet
         Tweet newTweet = new Tweet();
         newTweet.setUser(foundUser);
-        newTweet.setPost(tweet.getPost());
+        newTweet.setPost(tweetRequest.getTweet());
 
 
         Tweet createdTweet = tweetService.save(newTweet);
@@ -81,12 +82,13 @@ public class TweetController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TweetResponse> updateTweet(@PathVariable int id, @Validated @RequestBody Tweet updatedTweet) {
+    public ResponseEntity<TweetResponse> updateTweet(@PathVariable int id, @Validated @RequestBody TweetRequest updatedTweet) {
         Tweet foundTweet = tweetService.findById(id);
 
 
-        foundTweet.setPost(updatedTweet.getPost());
+        foundTweet.setPost(updatedTweet.getTweet());
         foundTweet.setId(id);
+        foundTweet.setUser(foundTweet.getUser());
 
 
         Tweet updated = tweetService.update(foundTweet.getId(), foundTweet);

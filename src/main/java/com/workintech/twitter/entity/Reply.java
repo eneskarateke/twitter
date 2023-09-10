@@ -16,11 +16,9 @@ public class Reply {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Positive
     private Integer id;
 
     @Column(name = "post")
-    @NotBlank
     @NotNull
     @Size(max = 280, message = "Tweet content cannot exceed 280 characters")
     private String post;
@@ -29,7 +27,13 @@ public class Reply {
             CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "tweet_id")
     @NotNull
-    @NotBlank
     private Tweet tweet;
+
+
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
+            CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinColumn(name = "replier_id")
+    @NotNull
+    private User replier;
 
 }

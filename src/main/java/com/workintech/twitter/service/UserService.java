@@ -36,7 +36,7 @@ public class UserService implements UserDetailsService {
         if (foundUser.isPresent()) {
             return foundUser.get();
         }
-        throw new TwitterException("User does not exist with given id" + userId, HttpStatus.NOT_FOUND);
+        throw new TwitterException("User does not exist with given id: " + userId, HttpStatus.NOT_FOUND);
 
     }
 }

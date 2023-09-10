@@ -14,20 +14,17 @@ public class Retweet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Positive
     private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "tweet_id")
     @NotNull
-    @NotBlank
     private Tweet tweet;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
             CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "user_id")
     @NotNull
-    @NotBlank
     private User user;
 
 }

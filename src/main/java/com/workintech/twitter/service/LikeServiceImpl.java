@@ -48,7 +48,7 @@ public class LikeServiceImpl implements LikeService {
             Like like = new Like();
             like.setTweet(tweet.get());
             if(user.isPresent()) {
-                like.setUser(user.get());
+                like.setLiker(user.get());
                 likeRepository.save(like);
 
             }

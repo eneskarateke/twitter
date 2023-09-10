@@ -1,6 +1,7 @@
 package com.workintech.twitter.controller;
 
 
+import com.workintech.twitter.dto.UserInfoRequest;
 import com.workintech.twitter.entity.Like;
 import com.workintech.twitter.entity.Reply;
 import com.workintech.twitter.entity.Tweet;
@@ -27,13 +28,13 @@ public class LikeController {
     private UserService userService;
 
     @PostMapping("/{tweetId}")
-    public ResponseEntity<LikeResponse> createLike(@PathVariable int tweetId, @RequestBody int userId) {
+    public ResponseEntity<LikeResponse> createLike(@PathVariable int tweetId, @RequestBody UserInfoRequest userInfo) {
         Tweet foundTweet= tweetService.findById(tweetId);
-        User foundUser = userService.findUserById(userId);
+        User foundUser = userService.findUserById(userInfo.getUserId());
         LikeResponse likeResponse = new LikeResponse();
 
         likeResponse.setTweetId(foundTweet.getId());
-        likeResponse.setUserId(foundUser.getId());
+        likeResponse.setLikerId(userInfo.getUserId());
 
 
         likeService.likeTweet(foundTweet.getId(),foundUser.getId());

@@ -1,10 +1,7 @@
 package com.workintech.twitter.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,14 +24,14 @@ public class User implements UserDetails {
 
     @Column(name = "email")
     @NotNull
-    @NotBlank
+    @NotEmpty
     @Email
     private String email;
 
 
     @Column(name = "password")
     @NotNull
-    @NotBlank
+    @NotEmpty
     @Size(min = 8, max=80)
     private String password;
 
@@ -45,8 +42,11 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Retweet> retweets;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "liker", cascade = CascadeType.ALL)
     private List<Like> likes;
+
+    @OneToMany(mappedBy = "replier", cascade = CascadeType.ALL)
+    private List<Reply> replies;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", schema = "twitter",

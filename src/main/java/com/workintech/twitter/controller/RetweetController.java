@@ -1,13 +1,17 @@
 package com.workintech.twitter.controller;
 
+import com.workintech.twitter.dto.UserInfoRequest;
 import com.workintech.twitter.entity.Reply;
 import com.workintech.twitter.entity.Retweet;
 import com.workintech.twitter.entity.Tweet;
 import com.workintech.twitter.entity.User;
+import com.workintech.twitter.mapping.RetweetResponse;
 import com.workintech.twitter.service.RetweetService;
 import com.workintech.twitter.service.TweetService;
 import com.workintech.twitter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,17 +28,23 @@ public class RetweetController {
 
 
     @PostMapping("/{id}")
-    public void createRetweet(@PathVariable int id, @RequestBody int userId) {
+    public ResponseEntity<RetweetResponse> createRetweet(@PathVariable int id, @RequestBody UserInfoRequest userInfo) {
         Tweet foundTweet= tweetService.findById(id);
-        User foundUser= userService.findUserById(userId);
+        User foundUser= userService.findUserById(userInfo.getUserId());
+
+        RetweetResponse retweetResponse = new RetweetResponse();
+        retweetResponse.setMessage("Retweet edildi!");
+        retweetResponse.setTweetId(foundTweet.getId());
+        retweetResponse.setUserId(foundUser.getId());
         Retweet retweet = new Retweet();
 
-        if(foundTweet !=null){
             retweet.setTweet(foundTweet);
-            if(foundUser!=null) {
+
+
                 retweet.setUser(foundUser);
                 retweetService.retweet(foundTweet.getId(), foundUser.getId());
-            }
-        }
+                return ResponseEntity.status(HttpStatus.CREATED).body(retweetResponse);
+
+
     }
 }

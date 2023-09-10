@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LikeResponse {
+public class ReplyResponse {
     private int tweetId;
-    private int likerId;
+    private int replierId;
+    private String post;
 }
