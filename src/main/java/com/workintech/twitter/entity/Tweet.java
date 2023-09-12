@@ -5,6 +5,8 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @Entity
@@ -20,6 +22,16 @@ public class Tweet {
     @NotNull
     @Size(max = 280, message = "Tweet content cannot exceed 280 characters")
     private String post;
+
+    @OneToMany(mappedBy = "tweet", cascade = CascadeType.ALL)
+    private List<Like> likes;
+
+    @OneToMany(mappedBy = "tweet", cascade = CascadeType.ALL)
+    private List<Reply> replies;
+
+    @OneToMany(mappedBy = "tweet", cascade = CascadeType.ALL)
+    private List<Retweet> retweets;
+
 
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,

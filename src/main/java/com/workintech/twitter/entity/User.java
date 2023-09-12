@@ -42,11 +42,6 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Retweet> retweets;
 
-    @OneToMany(mappedBy = "liker", cascade = CascadeType.ALL)
-    private List<Like> likes;
-
-    @OneToMany(mappedBy = "replier", cascade = CascadeType.ALL)
-    private List<Reply> replies;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", schema = "twitter",

@@ -39,4 +39,13 @@ public class UserService implements UserDetailsService {
         throw new TwitterException("User does not exist with given id: " + userId, HttpStatus.NOT_FOUND);
 
     }
+
+    public User findUserByEmail(String email){
+        Optional<User> foundUser = userRepository.findUserByEmail(email);
+        if (foundUser.isPresent()) {
+            return foundUser.get();
+        }
+        throw new TwitterException("User does not exist with given email: " + email, HttpStatus.NOT_FOUND);
+
+    }
 }

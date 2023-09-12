@@ -12,6 +12,10 @@ public class TweetResponse {
     private int id;
     private String post;
     private int userId;
+    private int likes;
+    private int replies;
+    private int retweets;
+
 
 
 }
