@@ -9,5 +9,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReplyRequest {
     private String tweet;
-    private int userId;
 }

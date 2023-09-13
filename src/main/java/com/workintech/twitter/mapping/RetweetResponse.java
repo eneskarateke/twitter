@@ -11,5 +11,6 @@ public class RetweetResponse {
     private int tweetId;
     private int userId;
     private String message;
+    private String email;
 }
 

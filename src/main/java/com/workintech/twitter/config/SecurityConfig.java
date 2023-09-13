@@ -52,7 +52,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Replace with your React app's URL
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
@@ -106,10 +106,9 @@ public class SecurityConfig {
                     auth.requestMatchers("/profile/**").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/tweet/**")
                             .hasAnyRole("USER", "ADMIN");
-                    auth.requestMatchers(HttpMethod.POST, "/tweet/**", "/student/**")  .hasAnyRole("USER", "ADMIN");
+                    auth.requestMatchers(HttpMethod.POST, "/tweet/**")  .hasAnyRole("USER", "ADMIN");
                     auth.requestMatchers(HttpMethod.PUT, "/tweet/**")  .hasAnyRole("USER", "ADMIN");
                     auth.requestMatchers(HttpMethod.DELETE, "/tweet/**")  .hasAnyRole("USER", "ADMIN");
-//                    auth.anyRequest().authenticated();
                 })
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
                 .build();

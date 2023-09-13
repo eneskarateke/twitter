@@ -1,19 +1,18 @@
 package com.workintech.twitter.controller;
 
 
-import com.workintech.twitter.dto.UserInfoRequest;
 import com.workintech.twitter.entity.Like;
-import com.workintech.twitter.entity.Reply;
 import com.workintech.twitter.entity.Tweet;
 import com.workintech.twitter.entity.User;
 import com.workintech.twitter.mapping.LikeResponse;
 import com.workintech.twitter.service.LikeService;
-import com.workintech.twitter.service.ReplyService;
 import com.workintech.twitter.service.TweetService;
 import com.workintech.twitter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,29 +27,41 @@ public class LikeController {
     private UserService userService;
 
     @PostMapping("/{tweetId}")
-    public ResponseEntity<LikeResponse> createLike(@PathVariable int tweetId, @RequestBody UserInfoRequest userInfo) {
+    public ResponseEntity<LikeResponse> createLike(@PathVariable int tweetId) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
+
         Tweet foundTweet= tweetService.findById(tweetId);
-        User foundUser = userService.findUserById(userInfo.getUserId());
-        LikeResponse likeResponse = new LikeResponse();
+        User foundUser = userService.findUserByEmail(userEmail);
 
-        likeResponse.setTweetId(foundTweet.getId());
-        likeResponse.setLikerId(userInfo.getUserId());
+            LikeResponse likeResponse = new LikeResponse();
 
+            likeResponse.setTweetId(foundTweet.getId());
+            likeResponse.setLikerId(foundUser.getId());
+            likeResponse.setLikerEmail(foundUser.getEmail());
+            likeService.likeTweet(foundTweet.getId(),foundUser.getId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(likeResponse);
 
-        likeService.likeTweet(foundTweet.getId(),foundUser.getId());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(likeResponse);
     }
 
 
     @DeleteMapping("/{id}")
-    public void unlike(@PathVariable int id) {
+    public ResponseEntity<Void> unlike(@PathVariable int id) {
         Like like = likeService.findLikeById(id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
 
-        if(like != null) {
+
+        if (like.getLiker().getEmail().equals(userEmail)) {
             likeService.unlikeTweet(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
+        }else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
 
     }
 }

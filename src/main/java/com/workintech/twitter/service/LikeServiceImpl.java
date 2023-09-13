@@ -35,7 +35,7 @@ public class LikeServiceImpl implements LikeService {
         if (foundLike.isPresent()) {
             return foundLike.get();
         }
-        throw new TwitterException("Like with given id does not exits: " + likeId , HttpStatus.NOT_FOUND);
+        throw new TwitterException("Like with given id does not exists: " + likeId , HttpStatus.NOT_FOUND);
 
     }
 

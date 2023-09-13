@@ -1,9 +1,10 @@
 package com.workintech.twitter.controller;
 
 import com.workintech.twitter.dto.TweetRequest;
-import com.workintech.twitter.entity.Tweet;
-import com.workintech.twitter.entity.User;
-import com.workintech.twitter.exceptions.TwitterException;
+import com.workintech.twitter.entity.*;
+import com.workintech.twitter.mapping.LikeResponse;
+import com.workintech.twitter.mapping.ReplyResponse;
+import com.workintech.twitter.mapping.RetweetResponse;
 import com.workintech.twitter.mapping.TweetResponse;
 import com.workintech.twitter.service.TweetService;
 import com.workintech.twitter.service.UserService;
@@ -38,17 +39,50 @@ public class TweetController {
             tweetResponse.setId(tweet.getId());
             tweetResponse.setPost(tweet.getPost());
             tweetResponse.setUserId(tweet.getUser().getId());
-            tweetResponse.setLikes(tweet.getLikes().size());
-            tweetResponse.setReplies(tweet.getReplies().size());
-            tweetResponse.setRetweets(tweet.getRetweets().size());
+            tweetResponse.setEmail(tweet.getUser().getEmail());
 
+
+            List<LikeResponse> likeResponses = new ArrayList<>();
+            for (Like like : tweet.getLikes()) {
+                LikeResponse likeResponse = new LikeResponse();
+                likeResponse.setTweetId(tweet.getId());
+                likeResponse.setLikerId(like.getLiker().getId());
+                likeResponse.setLikerEmail(like.getLiker().getEmail());
+                likeResponse.setLikeId(like.getId());
+                likeResponses.add(likeResponse);
+            }
+            tweetResponse.setLikes(likeResponses);
+
+            List<RetweetResponse> retweetResponses = new ArrayList<>();
+            for (Retweet retweet : tweet.getRetweets()) {
+                RetweetResponse retweetResponse = new RetweetResponse();
+                retweetResponse.setTweetId(tweet.getId());
+                retweetResponse.setUserId(retweet.getUser().getId());
+                retweetResponse.setEmail(retweet.getUser().getEmail());
+                retweetResponse.setMessage("Successful retrive");
+
+                retweetResponses.add(retweetResponse);
+            }
+            tweetResponse.setRetweets(retweetResponses);
+
+            List<ReplyResponse> replyResponses = new ArrayList<>();
+            for (Reply reply : tweet.getReplies()) {
+                ReplyResponse replyResponse = new ReplyResponse();
+                replyResponse.setTweetId(tweet.getId());
+                replyResponse.setReplierId(reply.getReplier().getId());
+                replyResponse.setPost(reply.getPost());
+                replyResponse.setEmail(reply.getReplier().getEmail());
+                replyResponse.setReplyId(reply.getId());
+
+                replyResponses.add(replyResponse);
+            }
+            tweetResponse.setReplies(replyResponses);
 
             tweetResponses.add(tweetResponse);
         }
 
         return tweetResponses;
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<TweetResponse> getTweetById(@PathVariable int id) {
 
@@ -59,23 +93,55 @@ public class TweetController {
         tweetResponse.setId(id);
         tweetResponse.setPost(foundTweet.getPost());
         tweetResponse.setUserId(foundTweet.getUser().getId());
-        tweetResponse.setLikes(foundTweet.getLikes().size());
-        tweetResponse.setReplies(foundTweet.getReplies().size());
-        tweetResponse.setRetweets(foundTweet.getRetweets().size());
+        tweetResponse.setEmail(foundTweet.getUser().getEmail());
+
+        List<LikeResponse> likeResponses = new ArrayList<>();
+        for (Like like : foundTweet.getLikes()) {
+            LikeResponse likeResponse = new LikeResponse();
+            likeResponse.setTweetId(foundTweet.getId());
+            likeResponse.setLikerId(like.getLiker().getId());
+            likeResponse.setLikerEmail(like.getLiker().getEmail());
+            likeResponses.add(likeResponse);
+            likeResponse.setLikeId(like.getId());
+        }
+        tweetResponse.setLikes(likeResponses);
+
+        List<RetweetResponse> retweetResponses = new ArrayList<>();
+        for (Retweet retweet : foundTweet.getRetweets()) {
+            RetweetResponse retweetResponse = new RetweetResponse();
+            retweetResponse.setTweetId(retweet.getTweet().getId());
+            retweetResponse.setUserId(retweet.getUser().getId());
+            retweetResponse.setEmail(retweet.getUser().getEmail());
+            retweetResponse.setMessage("Successful retrieve");
+
+            retweetResponses.add(retweetResponse);
+        }
+        tweetResponse.setRetweets(retweetResponses);
+
+
+        List<ReplyResponse> replyResponses = new ArrayList<>();
+        for (Reply reply : foundTweet.getReplies()) {
+            ReplyResponse replyResponse = new ReplyResponse();
+            replyResponse.setTweetId(foundTweet.getId());
+            replyResponse.setReplierId(reply.getReplier().getId());
+            replyResponse.setPost(reply.getPost());
+            replyResponse.setEmail(reply.getReplier().getEmail());
+            replyResponse.setReplyId(reply.getId());
+
+            replyResponses.add(replyResponse);
+        }
+        tweetResponse.setReplies(replyResponses);
+
         return ResponseEntity.status(HttpStatus.OK).body(tweetResponse);
     }
 
     @PostMapping("/")
     public ResponseEntity<TweetResponse> createTweet(@Validated @RequestBody TweetRequest tweetRequest) {
-        // Get the currently authenticated user's email from the token
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName(); // This should contain the email from the token
-
-        // Retrieve the user based on the email
+        String userEmail = authentication.getName();
         User foundUser = userService.findUserByEmail(userEmail);
 
-        if (foundUser != null) {
-            // Create a new tweet
+
             Tweet newTweet = new Tweet();
             newTweet.setUser(foundUser);
             newTweet.setPost(tweetRequest.getTweet());
@@ -86,62 +152,86 @@ public class TweetController {
             tweetResponse.setId(createdTweet.getId());
             tweetResponse.setUserId(foundUser.getId());
             tweetResponse.setPost(createdTweet.getPost());
+        tweetResponse.setEmail(foundUser.getEmail());
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(tweetResponse);
-        } else {
-            // Handle the case where the user is not found
-            throw new TwitterException("User not found with email: " + userEmail,HttpStatus.NOT_FOUND);
-        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(tweetResponse);
     }
     @PutMapping("/{id}")
     public ResponseEntity<TweetResponse> updateTweet(@PathVariable int id, @Validated @RequestBody TweetRequest updatedTweet) {
-        // Get the currently authenticated user's email from the token
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName(); // This should contain the email from the token
-
-        // Retrieve the tweet to be updated
+        String userEmail = authentication.getName();
         Tweet foundTweet = tweetService.findById(id);
 
-        // Check if the user making the request is the same as the tweet's user
         if (foundTweet.getUser().getEmail().equals(userEmail)) {
             foundTweet.setPost(updatedTweet.getTweet());
 
-            // Update the tweet
             Tweet updated = tweetService.update(foundTweet.getId(), foundTweet);
 
             TweetResponse tweetResponse = new TweetResponse();
             tweetResponse.setId(updated.getId());
             tweetResponse.setPost(updated.getPost());
             tweetResponse.setUserId(foundTweet.getUser().getId());
-            tweetResponse.setLikes(foundTweet.getLikes().size());
-            tweetResponse.setReplies(foundTweet.getReplies().size());
-            tweetResponse.setRetweets(foundTweet.getRetweets().size());
+            tweetResponse.setEmail(foundTweet.getUser().getEmail());
+
+            List<LikeResponse> likeResponses = new ArrayList<>();
+            for (Like like : foundTweet.getLikes()) {
+                LikeResponse likeResponse = new LikeResponse();
+                likeResponse.setTweetId(updated.getId());
+                likeResponse.setLikerId(like.getLiker().getId());
+                likeResponse.setLikerEmail(like.getLiker().getEmail());
+                likeResponse.setLikeId(like.getId());
+                likeResponses.add(likeResponse);
+            }
+            tweetResponse.setLikes(likeResponses);
+
+            List<RetweetResponse> retweetResponses = new ArrayList<>();
+            for (Retweet retweet : foundTweet.getRetweets()) {
+                RetweetResponse retweetResponse = new RetweetResponse();
+                retweetResponse.setTweetId(updated.getId());
+                retweetResponse.setUserId(retweet.getUser().getId());
+                retweetResponse.setEmail(retweet.getUser().getEmail());
+                retweetResponse.setMessage("Successful retrive");
+
+
+                retweetResponses.add(retweetResponse);
+            }
+            tweetResponse.setRetweets(retweetResponses);
+
+
+            List<ReplyResponse> replyResponses = new ArrayList<>();
+            for (Reply reply : foundTweet.getReplies()) {
+                ReplyResponse replyResponse = new ReplyResponse();
+                replyResponse.setTweetId(foundTweet.getId());
+                replyResponse.setReplierId(reply.getReplier().getId());
+                replyResponse.setPost(reply.getPost());
+                replyResponse.setEmail(reply.getReplier().getEmail());
+                replyResponse.setReplyId(reply.getId());
+
+                replyResponses.add(replyResponse);
+            }
+            tweetResponse.setReplies(replyResponses);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(tweetResponse);
         } else {
-            // User is not authorized to update this tweet
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
 
 
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTweet(@PathVariable int id) {
-        // Get the currently authenticated user's email from the token
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName(); // This should contain the email from the token
+        String userEmail = authentication.getName();
 
-        // Retrieve the tweet to be deleted
         Tweet foundTweet = tweetService.findById(id);
 
-        // Check if the user making the request is the same as the tweet's user
         if (foundTweet.getUser().getEmail().equals(userEmail)) {
-            // Delete the tweet
             tweetService.delete(foundTweet.getId());
 
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {
-            // User is not authorized to delete this tweet
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }

@@ -11,6 +11,8 @@ import com.workintech.twitter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,20 +33,24 @@ public class ReplyController {
 
     @PostMapping("/{id}")
     public ResponseEntity<ReplyResponse> createReply(@PathVariable int id, @Validated  @RequestBody ReplyRequest replyRequest) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
         Tweet foundTweet= tweetService.findById(id);
-        User replier = userService.findUserById(replyRequest.getUserId());
+        User replier = userService.findUserByEmail(userEmail);
         Reply reply = new Reply();
 
 
-            reply.setTweet(foundTweet);
-            reply.setPost(replyRequest.getTweet());
-            reply.setReplier(replier);
-            replyService.replyToTweet(reply.getTweet().getId(),reply);
+        reply.setTweet(foundTweet);
+        reply.setPost(replyRequest.getTweet());
+        reply.setReplier(replier);
+        replyService.replyToTweet(foundTweet.getId(), reply);
 
 
             ReplyResponse replyResponse=new ReplyResponse();
             replyResponse.setTweetId(foundTweet.getId());
-            replyResponse.setReplierId(replyRequest.getUserId());
+            replyResponse.setReplierId(replier.getId());
             replyResponse.setPost(replyRequest.getTweet());
             return ResponseEntity.status(HttpStatus.CREATED).body(replyResponse);
 
@@ -52,10 +58,17 @@ public class ReplyController {
 
 
     @DeleteMapping("/{id}")
-    public void deleteReply(@PathVariable int id) {
+    public ResponseEntity<Void> deleteReply(@PathVariable int id) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
         Reply reply = replyService.findReplyById(id);
+        if (reply.getReplier().getEmail().equals(userEmail)) {
+            replyService.deleteReply(reply.getId());
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
-        replyService.deleteReply(id);
-
+        }else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 }

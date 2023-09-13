@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LikeResponse {
+    private int likeId;
     private int tweetId;
     private int likerId;
+    private String likerEmail;
 }

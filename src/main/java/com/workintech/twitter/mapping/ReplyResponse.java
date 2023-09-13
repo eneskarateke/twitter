@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReplyResponse {
+    private int replyId;
     private int tweetId;
     private int replierId;
     private String post;
+    private String email;
 }
